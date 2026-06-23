@@ -32,11 +32,11 @@ The codebase is organized modularly, separating data loading, model architecture
 📁 AI-Super-Resolution-ACT-for-Big-Imaging/
 │
 ├── 📁 Dataset/                        
-├── 📁 Code/                           # Stores all the code required to modify the dataset
-│   ├── dataset                        # Standard dataset with synthetic albumentations degradation
-│   └── dataset_double                 # Baseline dataset using official DIV2K Bicubic X4
-│   └── dataset_official               # Decoupled dataset with Domain Alignment (Teacher Forcing)
-├── DIV2K Repository                   # Contains the link to the official DIV2K Dataset Repository
+├── 📁 Code/                        
+│   ├── dataset                     # Standard dataset with synthetic albumentations degradation
+│   └── dataset_double              # Baseline dataset using official DIV2K Bicubic X4
+│   └── dataset_official            # Decoupled dataset with Domain Alignment (Teacher Forcing)
+├── DIV2K Repository                # Contains the link to the official DIV2K Dataset Repository
 │
 ├── 🧠 Models
 ├── 📁 Code/  
