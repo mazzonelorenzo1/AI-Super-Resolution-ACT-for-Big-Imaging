@@ -6,9 +6,9 @@ from torchmetrics.image import PeakSignalNoiseRatio, StructuralSimilarityIndexMe
 from torchvision.models import resnet50, ResNet50_Weights
 
 
-# ==========================================
-# FEATURE EXTRACTOR (The Heavy Art Critic - ResNet50)
-# ==========================================
+# ============================
+# FEATURE EXTRACTOR
+# ============================
 class ResNetFeatureExtractor(nn.Module):
     def __init__(self):
         super().__init__()
@@ -24,10 +24,9 @@ class ResNetFeatureExtractor(nn.Module):
             resnet.maxpool,
             resnet.layer1,
             resnet.layer2,
-            resnet.layer3  # Layer 3 provides highly contextual feature maps
+            resnet.layer3 
         )
 
-        # Freeze the weights! We only use it to evaluate the Generator, not to train it.
         for param in self.feature_extractor.parameters():
             param.requires_grad = False
 
@@ -41,9 +40,9 @@ class ResNetFeatureExtractor(nn.Module):
         return self.feature_extractor(x)
 
 
-# ==========================================
-# 1. THE GENERATOR (The Forger with Context)
-# ==========================================
+# ========================
+# 1. THE GENERATOR
+# ========================
 
 # --- SELF-ATTENTION BLOCK ---
 class SelfAttentionBlock(nn.Module):
@@ -67,7 +66,7 @@ class SelfAttentionBlock(nn.Module):
         proj_query = self.query_conv(x).view(batch_size, -1, width * height).permute(0, 2, 1)
         proj_key = self.key_conv(x).view(batch_size, -1, width * height)
 
-        # Matrix multiplication between Query and Key to get attention scores (Energy)
+        # Matrix multiplication between Query and Key to get attention scores
         energy = torch.bmm(proj_query, proj_key)
 
         # Apply softmax to get attention probabilities
@@ -109,7 +108,7 @@ class Generator(nn.Module):
         self.conv1 = nn.Conv2d(3, 64, kernel_size=9, padding=4)
         self.prelu = nn.PReLU()
 
-        # Split Residual Blocks to insert Attention in the middle (Latent Space)
+        # Split Residual Blocks to insert Attention in the middle
         self.res_blocks_1 = nn.Sequential(*[ResidualBlock(64) for _ in range(num_res_blocks // 2)])
 
         # Global context module
@@ -119,7 +118,7 @@ class Generator(nn.Module):
 
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
 
-        # Upsampling (PixelShuffle)
+        # Upsampling
         self.upsample = nn.Sequential(
             nn.Conv2d(64, 256, kernel_size=3, padding=1),
             nn.PixelShuffle(2),
@@ -143,7 +142,6 @@ class Generator(nn.Module):
         # Passing through the second half
         out = self.res_blocks_2(out)
 
-        # Note: bn2 wrapper removed here to match the checkpoint!
         out = self.conv2(out)
         out = out + out1  # Global Skip Connection
 
@@ -152,9 +150,9 @@ class Generator(nn.Module):
         return (torch.tanh(out) + 1) / 2  # Output between 0 and 1
 
 
-# ==========================================
-# 2. THE DISCRIMINATOR (The Cop)
-# ==========================================
+# ===========================
+# 2. THE DISCRIMINATOR
+# ===========================
 class Discriminator(nn.Module):
     def __init__(self):
         super().__init__()
@@ -184,9 +182,9 @@ class Discriminator(nn.Module):
         return self.net(x).view(batch_size, -1)
 
 
-# ==========================================
-# 3. THE LIGHTNING MODEL (The GAN Arena)
-# ==========================================
+# =============================
+# 3. THE LIGHTNING MODEL
+# =============================
 class SRGANModel(pl.LightningModule):
     def __init__(self, lr=1e-4):
         super().__init__()
