@@ -9,7 +9,7 @@ from dataset_double import DIV2KDataset
 
 
 def show_batch_with_names(dataset, num_images=3):
-    # Determine the titles based on the dataset mode!
+    # Determine the titles based on the dataset mode
     if dataset.mode == 'stage1_denoise':
         main_title = "Data Check: STAGE 1 (Denoiser - Denoising Only)"
         input_title = "Network Input (Noisy LR)"
@@ -53,9 +53,9 @@ def show_batch_with_names(dataset, num_images=3):
 
 
 if __name__ == "__main__":
-    # ==========================================
+    # ==========================
     # PYTORCH HARDWARE CHECK
-    # ==========================================
+    # ==========================
     print("\n" + "=" * 40)
     print("🖥️  PYTORCH HARDWARE CHECK")
     print("=" * 40)
