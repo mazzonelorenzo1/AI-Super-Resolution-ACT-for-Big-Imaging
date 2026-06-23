@@ -9,7 +9,7 @@ import os
 import gc
 
 # --- CUSTOM MODEL IMPORTS ---
-# We import all the models created during the project using aliases to avoid name collisions
+# Import all the models created during the project using aliases to avoid name collisions
 try:
     from model import SuperResolutionModel as BaselineModel
     from gan_model import SRGANModel as SRGAN_VGG
@@ -96,9 +96,9 @@ def load_swinir_sota():
     return processor, model_sota
 
 
-# ==========================================
-# 3. PROCESSING & TILING LOGIC (VRAM SAFE)
-# ==========================================
+# ===================================
+# 3. PROCESSING & TILING LOGIC
+# ===================================
 def apply_opencv_denoise(image_pil):
     """Applies Fast Non-Local Means Denoising using OpenCV before neural processing."""
     image_np = np.array(image_pil)
@@ -189,7 +189,7 @@ if not CUSTOM_MODELS_AVAILABLE:
         f"Missing local python model files! Ensure gan_model.py, dataset.py etc. are in the root directory. Error: {IMPORT_ERROR_MSG}")
     st.stop()
 
-# --- MODEL SELECTION MENU ---
+# MODEL SELECTION MENU
 st.sidebar.header("⚙️ Settings")
 model_choice = st.sidebar.radio(
     "Select the AI Engine:",
@@ -211,13 +211,13 @@ st.sidebar.markdown("---")
 st.sidebar.info(
     "Use the different models to evaluate how the architecture evolved over the course of the project. The Decoupled Pipeline represents the final proposed solution.")
 
-# --- FILE UPLOADER ---
+# FILE UPLOADER
 uploaded_file = st.file_uploader("Upload an image", type=['jpg', 'jpeg', 'png'])
 
 if uploaded_file is not None:
     file_ext = uploaded_file.name.split('.')[-1].lower()
 
-    # --- IMAGE PROCESSING SECTION ---
+    # IMAGE PROCESSING SECTION
     if file_ext in ['jpg', 'jpeg', 'png']:
         original_image = Image.open(uploaded_file).convert("RGB")
         st.write(f"**Original Resolution:** {original_image.width}x{original_image.height} pixels")
