@@ -76,7 +76,7 @@ class DIV2KDataset(Dataset):
             lr_stage1_image = cv2.imread(lr_stage1_path)
             lr_stage1_image = cv2.cvtColor(lr_stage1_image, cv2.COLOR_BGR2RGB)
 
-            # B. Coordinated geometric drop
+            # B. Coordinated geometric crop
             lr_h, lr_w, _ = lr_stage1_image.shape
             lr_crop_size = self.patch_size // self.scale_factor 
 
