@@ -7,7 +7,7 @@
 - [Repository Structure](#struct)
 - [Installation](#install)
 - [How to Run the Demo](#demo)
-- [Results](#results)
+- [Quantitative Results](#results)
 - [Aknowledgments](#aknow)
 
 <a id="intro"></a>
@@ -59,3 +59,90 @@ The codebase is organized modularly, separating data loading, model architecture
 └── 🖥️ Demo
     └── app_def.py                  # Interactive Streamlit Web App
 ```
+
+<a id="install"></a>
+## ⚙️ Installation
+
+1. **Clone the repository:**
+```bash
+git clone [https://github.com/mazzonelorenzo1/AI-Super-Resolution-ACT-for-Big-Imaging.git](https://github.com/mazzonelorenzo1/AI-Super-Resolution-ACT-for-Big-Imaging.git)
+cd AI-Super-Resolution-ACT-for-Big-Imaging
+```
+
+2. **Create a virtual environment (Recommended):**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+```
+
+3. **Install the required dependencies:**
+Ensure you have PyTorch installed with CUDA support if you intend to train the models.
+```bash
+pip install requirements.txt
+```
+<a id="demo"></a>
+## 🚀 How to Run the Demo
+1. **Data Preparation & Checking**
+The scripts will automatically download the DIV2K dataset from the official ETH Zurich servers on the first run. To verify that the data augmentation and geometric cropping are working perfectly, run:
+```bash
+python check_data_double.py
+```
+
+2. **Training the Decoupled Pipeline**
+The training is split into two phases.
+
+**Step A: Train Stage 1 (The Denoiser)**
+```bash
+python train_double.py --stage 1
+```
+
+Wait for the training to finish. The best weights will be saved in checkpoints/stage1/.
+
+**Step B: Prepare Data for Stage 2 (Domain Alignment)**
+Before training the GAN, we must process all HR images through the flawed Stage 1 model to simulate the production environment.
+Open *prep_stage2.py*, ensure *CKPT_STAGE1 points* to your newly trained Stage 1 weights, and run:
+```bash
+python prep_stage2.py
+```
+
+**Step C: Train Stage 2 (The Enhancer)**
+Once the intermediate images are generated, you can train the GAN:
+```bash
+python train_double.py --stage 2
+```
+
+**Shortcut**
+Alternatively, you can already find all the trained models in [this Google Drive](https://drive.google.com/drive/folders/1jcDUcz_Un1R-vTTecjsqVsS8oow4UezQ?usp=drive_link). Download all the necessary models and put them in the correct path.
+
+3. **Running the Streamlit UI**
+To test the models, compare different historical architectures, and upscale your own images or videos, launch the interactive Streamlit Application:
+
+1. Open app.py and ensure the paths inside the CKPT_PATHS dictionary point to your saved .ckpt files. You can find all the necessary models in [this Google Drive](https://drive.google.com/drive/folders/1jcDUcz_Un1R-vTTecjsqVsS8oow4UezQ?usp=drive_link).
+
+2. Run the app:
+```bash
+streamlit run app.py
+```
+
+3. A browser window will open automatically. Upload an image, select your desired AI engine from the sidebar, and watch the inference happen with dynamic VRAM-safe tiling!
+
+<a id="results"></a>
+## 📈 Quantitative Results
+
+Below is a summary of the evaluation metrics across the different architectures tested during the project's evolution. Notice the **Perception-Distortion Tradeoff**: models purely optimized on MSE (like the Baseline or Stage 1) achieve higher PSNR/SSIM but suffer from oversmoothing, whereas GAN-based models hallucinate sharper, photorealistic details at the cost of lower mathematical pixel-to-pixel scores.
+
+| **Model Type** | **Loss Value** | **PSNR Value (dB)** | **Similarity Value (SSIM)** |
+| :--- | :---: | :---: | :---: |
+| Baseline ESPCN | 0.0044 | 23.73 | 0.74 |
+| VGG Model | 0.0065 | 22.32 | 0.57 |
+| VGG Model + ResNet | 0.0109 | 20.39 | 0.53 |
+| VGG Model + Attention | 0.0095 | 20.73 | 0.54 |
+| Decoupled VGG Model - Stage 1 | **0.0019** | **27.54** | **0.83** |
+| Decoupled VGG Model - Stage 2 | 0.0059 | 22.71 | 0.59 |
+| VGG Model + Attention (Official Dataset) | 0.0040 | 25.01 | 0.70 |
+
+<a id="aknow"></a>
+##🏆 Acknowledgments
+
+1. The DIV2K dataset used for training and validation is provided by the Computer Vision Laboratory, ETH Zurich.
+2. State-of-the-art comparisons in the app are powered by HuggingFace Transformers (SwinIR).
