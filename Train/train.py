@@ -11,7 +11,7 @@ from gan_model_attention import SRGANModel
 if __name__ == "__main__":
     print("⚙️ Data preparation in progress...")
 
-    # 1. DATA SPLITTING (As required for the exam evaluation)
+    # 1. Data Splitting
     DATA_ROOT = "./data_official/DIV2K_train_HR"
 
     # Load the entire dataset
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     train_size = 750
     val_size = len(full_dataset) - train_size
 
-    # Use a manual seed for reproducibility (good data science practice!)
+    # Use a manual seed for reproducibility
     generator = torch.Generator().manual_seed(42)
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size], generator=generator)
 
@@ -32,22 +32,22 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=0)
 
-    # 2. MODEL INITIALIZATION (Our Custom SRGAN)
+    # 2. Model Initialization
     model = SRGANModel(lr=1e-4)
 
-    # 3. CHECKPOINT CALLBACK (Deployment Step)
+    # 3. Checkpoint Callback
     # PyTorch Lightning will monitor the validation loss/metric and automatically save
-    # ONLY the weights file (.ckpt) of the epoch with the highest quality.
+    # only the weights file (.ckpt) of the epoch with the highest quality.
     checkpoint_callback = ModelCheckpoint(
-        monitor='val_psnr',  # <--- We monitor the image quality metric!
-        mode='max',          # <--- We want the PSNR to be as HIGH as possible
+        monitor='val_psnr',  
+        mode='max',         
         dirpath='checkpoints/',
         filename='best-official-attention-VGG-gan-{epoch:02d}-{val_psnr:.2f}',
         save_top_k=1,
         verbose=True
     )
 
-    # 4. TRAINER CONFIGURATION
+    # 4. Trainer Configuration
     trainer = pl.Trainer(
         max_epochs=50,
         callbacks=[checkpoint_callback],
@@ -57,6 +57,6 @@ if __name__ == "__main__":
         log_every_n_steps=10
     )
 
-    # 5. START TRAINING
+    # 5. Start training
     print("\n🚀 Starting training on the GPU...")
     trainer.fit(model, train_loader, val_loader)
