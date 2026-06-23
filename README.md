@@ -30,7 +30,7 @@ For in-depth analysis of this project please refer to the [presentation](https:/
 
 <a id="struct"></a>
 ## 📂 Repository Structure
-The codebase is organized modularly, separating data loading, model architectures, and training logic.
+The repository is organized modularly, separating data loading, model architectures, and training logic.
 
 ```text
 📁 AI-Super-Resolution-ACT-for-Big-Imaging/
@@ -124,7 +124,26 @@ python train_double.py --stage 2
 Alternatively, you can already find all the trained models in [this Google Drive](https://drive.google.com/drive/folders/1jcDUcz_Un1R-vTTecjsqVsS8oow4UezQ?usp=drive_link). Download all the necessary models and put them in the correct path.
 
 3. **Running the Streamlit UI**
-To test the models, compare different historical architectures, and upscale your own images or videos, launch the interactive Streamlit Application:
+For clarity and browsing convenience on GitHub, this repository organizes files into logical subfolders (`Models/`, `Datasets/`, `User Interface/`, etc.). However, to successfully run the Streamlit demo locally without Python `ImportError` issues, `app.py` needs to be in the same root directory as the model files it imports.
+
+Before running the app, please rearrange your local working directory to match this flattened structure:
+
+```text
+📁 Working_Directory/
+│
+├── 📁 checkpoints/                 # Contains all your trained .ckpt files
+│   ├── stage1/                     
+│   └── stage2/                     
+│
+├── app.py                          # Moved from User Interface/
+├── model.py                        # Moved from Models/
+├── gan_model.py                    # Moved from Models/
+├── gan_model_resnet.py             # Moved from Models/
+├── gan_model_attention.py          # Moved from Models/
+└── gan_model_double.py             # Moved from Models/
+```
+
+To then test the models, compare different historical architectures, and upscale your own images or videos, launch the interactive Streamlit Application:
 
 - Open app.py and ensure the paths inside the CKPT_PATHS dictionary point to your saved .ckpt files. You can find all the necessary models in [this Google Drive](https://drive.google.com/drive/folders/1jcDUcz_Un1R-vTTecjsqVsS8oow4UezQ?usp=drive_link).
 
