@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, random_split
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-# Import the dataset and our TWO decoupled models
+# Import the dataset and our two decoupled models
 from dataset_double import DIV2KDataset
 from gan_model_double import Stage1DenoisingModel, SRGANModel
 
@@ -37,7 +37,7 @@ def main():
     print(f"⚙️ Data preparation in progress (Mode: {dataset_mode})...")
     DATA_ROOT = "./data/DIV2K_train_HR"
 
-    # Load the dataset with the correct mode for the chosen stage!
+    # Load the dataset with the correct mode for the chosen stage
     full_dataset = DIV2KDataset(hr_dir=DATA_ROOT, patch_size=256, scale_factor=4, mode=dataset_mode)
 
     train_size = 750
@@ -48,7 +48,6 @@ def main():
     print(f"📊 Training Set Size: {len(train_dataset)} images")
     print(f"📊 Validation Set Size: {len(val_dataset)} images")
 
-    # Increase num_workers if your CPU allows it (e.g., 4 or 8) for faster data loading
     train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=0)
 
@@ -56,7 +55,6 @@ def main():
     # 2. MODEL INITIALIZATION
     # ==========================================
     if args.stage == 1:
-        # Slightly higher learning rate for pure MSE optimization
         model = Stage1DenoisingModel(lr=2e-4)
     else:
         model = SRGANModel(lr=1e-4)
@@ -83,7 +81,7 @@ def main():
         callbacks=[checkpoint_callback],
         accelerator='gpu' if torch.cuda.is_available() else 'cpu',
         devices=1,
-        precision='16-mixed', # Mixed precision to heavily reduce VRAM usage
+        precision='16-mixed', # Mixed precision to reduce VRAM usage
         log_every_n_steps=10
     )
 
