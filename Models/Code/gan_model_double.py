@@ -55,9 +55,9 @@ class ResidualBlock(nn.Module):
         return x + residual
 
 
-# ==========================================
-# STAGE 1: THE DENOISER (Clean the Noise)
-# ==========================================
+# ===========================
+# STAGE 1: THE DENOISER 
+# ===========================
 class DenoiserGenerator(nn.Module):
     def __init__(self, num_res_blocks=6):
         super().__init__()
@@ -72,7 +72,6 @@ class DenoiserGenerator(nn.Module):
 
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
 
-        # NO PIXELSHUFFLE HERE! Straight to output.
         self.conv3 = nn.Conv2d(64, 3, kernel_size=3, padding=1)
 
     def forward(self, x):
@@ -105,7 +104,6 @@ class Stage1DenoisingModel(pl.LightningModule):
         lr_noisy, lr_clean = batch
         denoised_imgs = self.generator(lr_noisy)
 
-        # Only objective: wipe out the noise!
         loss = self.mse_loss(denoised_imgs, lr_clean)
         self.log("train_loss", loss, prog_bar=True)
         return loss
@@ -128,7 +126,7 @@ class Stage1DenoisingModel(pl.LightningModule):
 
 
 # ==========================================
-# STAGE 2: THE ARTIST (SRGAN + Attention)
+# STAGE 2: THE ENHANCER (SRGAN + Attention)
 # ==========================================
 class ResNetFeatureExtractor(nn.Module):
     def __init__(self):
@@ -160,7 +158,6 @@ class Generator(nn.Module):
         self.res_blocks_2 = nn.Sequential(*[ResidualBlock(64) for _ in range(num_res_blocks // 2)])
 
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        # Note: bn2 has been removed here to match your original trained checkpoint!
 
         # Upsampling via PixelShuffle
         self.upsample = nn.Sequential(
@@ -179,7 +176,6 @@ class Generator(nn.Module):
         out = self.attention(out)
         out = self.res_blocks_2(out)
 
-        # Note: bn2 wrapper removed here to match the checkpoint!
         out = self.conv2(out)
         out = out + out1
 
