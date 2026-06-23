@@ -35,7 +35,7 @@ The codebase is organized modularly, separating data loading, model architecture
 ├── 📁 Code/                        
 │   ├── dataset                     # Standard dataset with synthetic albumentations degradation
 │   └── dataset_double              # Baseline dataset using official DIV2K Bicubic X4
-│   └── dataset_official            # Decoupled dataset with Domain Alignment (Teacher Forcing)
+│   └── dataset_official            # Decoupled dataset with Domain Alignment
 ├── DIV2K Repository                # Contains the link to the official DIV2K Dataset Repository
 │
 ├── 🧠 Models
@@ -117,14 +117,14 @@ Alternatively, you can already find all the trained models in [this Google Drive
 3. **Running the Streamlit UI**
 To test the models, compare different historical architectures, and upscale your own images or videos, launch the interactive Streamlit Application:
 
-1. Open app.py and ensure the paths inside the CKPT_PATHS dictionary point to your saved .ckpt files. You can find all the necessary models in [this Google Drive](https://drive.google.com/drive/folders/1jcDUcz_Un1R-vTTecjsqVsS8oow4UezQ?usp=drive_link).
+- Open app.py and ensure the paths inside the CKPT_PATHS dictionary point to your saved .ckpt files. You can find all the necessary models in [this Google Drive](https://drive.google.com/drive/folders/1jcDUcz_Un1R-vTTecjsqVsS8oow4UezQ?usp=drive_link).
 
-2. Run the app:
+- Run the app:
 ```bash
 streamlit run app.py
 ```
 
-3. A browser window will open automatically. Upload an image, select your desired AI engine from the sidebar, and watch the inference happen with dynamic VRAM-safe tiling!
+- A browser window will open automatically. Upload an image, select your desired AI engine from the sidebar, and watch the inference happen with dynamic VRAM-safe tiling!
 
 <a id="results"></a>
 ## 📈 Quantitative Results
