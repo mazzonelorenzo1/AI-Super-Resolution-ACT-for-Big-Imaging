@@ -11,7 +11,7 @@ class SuperResolutionModel(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()  # Automatically saves hyperparameters for deployment
 
-        # --- NETWORK ARCHITECTURE (2D CNN) ---
+        # NETWORK ARCHITECTURE (2D CNN)
 
         # 1. Feature Extractor
         self.feature_extractor = nn.Sequential(
@@ -23,13 +23,13 @@ class SuperResolutionModel(pl.LightningModule):
             nn.ReLU(inplace=True)
         )
 
-        # 2. Upsampler (The DLSS magic trick using sub-pixel convolutions)
+        # 2. Upsampler
         self.upsampler = nn.Sequential(
             nn.Conv2d(32, 3 * (scale_factor ** 2), kernel_size=3, padding=1),
-            nn.PixelShuffle(scale_factor)  # Technique to multiply spatial resolution
+            nn.PixelShuffle(scale_factor)
         )
 
-        # --- LOSS AND METRICS ---
+        # LOSS AND METRICS
         self.loss_fn = nn.MSELoss()
         self.psnr = PeakSignalNoiseRatio(data_range=1.0)
         self.ssim = StructuralSimilarityIndexMeasure(data_range=1.0)
