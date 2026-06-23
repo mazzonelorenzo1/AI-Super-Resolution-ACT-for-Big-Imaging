@@ -15,9 +15,9 @@ def show_batch_with_names(dataset, num_images=4):
     random_indices = random.sample(range(len(dataset)), num_images)
 
     for i, idx in enumerate(random_indices):
-        # Manually extract the tensors and the FILENAME
+        # Manually extract the tensors and the filename
         lr_tensor, hr_tensor = dataset[idx]
-        file_name = dataset.image_filenames[idx]  # <-- HERE IS THE FILENAME!
+        file_name = dataset.image_filenames[idx] 
 
         # Prepare images for Matplotlib
         lr = lr_tensor.permute(1, 2, 0).numpy()
