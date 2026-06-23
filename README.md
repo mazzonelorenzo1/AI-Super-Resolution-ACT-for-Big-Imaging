@@ -131,7 +131,7 @@ Before running the app, please rearrange your local working directory to match t
 ```text
 📁 Working_Directory/
 │
-├── 📁 checkpoints/                 # Contains all your trained .ckpt files
+├── 📁 checkpoints/                 # Contains all the trained .ckpt files
 │   ├── stage1/                     
 │   └── stage2/
 │   ├── #All the other models                
