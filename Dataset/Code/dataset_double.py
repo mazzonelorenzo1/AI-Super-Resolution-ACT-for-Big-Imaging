@@ -2,11 +2,11 @@ import os
 import cv2
 import numpy as np
 import torch
-import random  # <--- NEW: Required for coordinated geometric calculation
+import random 
 from torch.utils.data import Dataset, DataLoader
 import albumentations as A
 
-# We use the official PyTorch tool to download and extract the data
+# Official PyTorch tool to download and extract the data
 from torchvision.datasets.utils import download_and_extract_archive
 
 DIV2K_URL = "http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip"
@@ -32,14 +32,14 @@ class DIV2KDataset(Dataset):
 
         self.image_filenames = [f for f in os.listdir(hr_dir) if f.endswith(('.png', '.jpg'))]
 
-        # Geometric transformation used ONLY for Stage 1
+        # Geometric transformation used only for Stage 1
         self.geom_transform = A.Compose([
             A.RandomCrop(height=patch_size, width=patch_size),
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.5),
         ])
 
-        # Synthetic degradation used ONLY for Stage 1
+        # Synthetic degradation used only for Stage 1
         self.stage1_degrade = A.Compose([
             A.GaussNoise(std_range=(0.02, 0.08), p=1.0),
             A.ImageCompression(quality_range=(30, 70), p=1.0),
@@ -49,14 +49,14 @@ class DIV2KDataset(Dataset):
         return len(self.image_filenames)
 
     def __getitem__(self, idx):
-        # 1. Load the original High-Resolution (HR) Ground Truth
+        # 1. Load the original High-Resolution Ground Truth
         img_path = os.path.join(self.hr_dir, self.image_filenames[idx])
         hr_image = cv2.imread(img_path)
         hr_image = cv2.cvtColor(hr_image, cv2.COLOR_BGR2RGB)
 
         # --- TWO-STAGE LOGIC ---
         if self.mode == 'stage1_denoise':
-            # STANDARD APPROACH: Extract patch, downscale, apply synthetic noise
+            # Extract patch, downscale, apply synthetic noise
             hr_patch = self.geom_transform(image=hr_image)['image']
             lr_size = (self.patch_size // self.scale_factor, self.patch_size // self.scale_factor)
             lr_base = cv2.resize(hr_patch, lr_size, interpolation=cv2.INTER_AREA)
@@ -65,7 +65,7 @@ class DIV2KDataset(Dataset):
             input_img = self.stage1_degrade(image=lr_base)['image']
 
         elif self.mode == 'stage2_upscale':
-            # A. LOAD REAL NETWORK 1 OUTPUT (Domain Alignment)
+            # A. Domain Alignment
             lr_stage1_path = os.path.join(self.lr_stage1_dir, self.image_filenames[idx])
             if not os.path.exists(lr_stage1_path):
                 raise FileNotFoundError(
@@ -76,9 +76,9 @@ class DIV2KDataset(Dataset):
             lr_stage1_image = cv2.imread(lr_stage1_path)
             lr_stage1_image = cv2.cvtColor(lr_stage1_image, cv2.COLOR_BGR2RGB)
 
-            # B. COORDINATED GEOMETRIC CROP
+            # B. Coordinated geometric drop
             lr_h, lr_w, _ = lr_stage1_image.shape
-            lr_crop_size = self.patch_size // self.scale_factor  # Usually 64 pixels (256 // 4)
+            lr_crop_size = self.patch_size // self.scale_factor 
 
             # Choose a random anchor point on the Low-Resolution map
             x_lr = random.randint(0, max(0, lr_w - lr_crop_size))
@@ -92,7 +92,7 @@ class DIV2KDataset(Dataset):
             y_hr = y_lr * self.scale_factor
             target_img = hr_image[y_hr:y_hr + self.patch_size, x_hr:x_hr + self.patch_size]
 
-            # C. MANUAL DATA AUGMENTATION (Keeps input and target perfectly synchronized)
+            # C. Manual data Agumentation
             if random.random() > 0.5:
                 input_img = np.fliplr(input_img).copy()
                 target_img = np.fliplr(target_img).copy()
