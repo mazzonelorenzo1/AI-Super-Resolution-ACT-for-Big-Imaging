@@ -84,7 +84,7 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 3. **Install the required dependencies:**
 Ensure you have PyTorch installed with CUDA support if you intend to train the models.
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 ---
