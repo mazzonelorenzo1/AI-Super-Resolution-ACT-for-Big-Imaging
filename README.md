@@ -140,7 +140,7 @@ streamlit run app.py
 <a id="results"></a>
 ## 📈 Quantitative Results
 
-Below is a summary of the evaluation metrics across the different architectures tested during the project's evolution. Notice the **Perception-Distortion Tradeoff**: models purely optimized on MSE (like the Baseline or Stage 1) achieve higher PSNR/SSIM but suffer from oversmoothing, whereas GAN-based models hallucinate sharper, photorealistic details at the cost of lower mathematical pixel-to-pixel scores.
+Below is a summary of the evaluation metrics across the different architectures tested during the project's evolution.
 
 | **Model Type** | **Loss Value** | **PSNR Value (dB)** | **Similarity Value (SSIM)** |
 | :--- | :---: | :---: | :---: |
@@ -155,7 +155,7 @@ Below is a summary of the evaluation metrics across the different architectures 
 ---
 
 <a id="aknow"></a>
-##🏆 Acknowledgments
+## 🏆 Acknowledgments
 
 1. The DIV2K dataset used for training and validation is provided by the Computer Vision Laboratory, ETH Zurich.
 2. State-of-the-art comparisons in the app are powered by HuggingFace Transformers (SwinIR).
