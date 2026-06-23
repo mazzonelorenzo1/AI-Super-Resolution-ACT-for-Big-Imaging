@@ -7,7 +7,7 @@ from torchvision.models import resnet50, ResNet50_Weights
 
 
 # ==========================================
-# FEATURE EXTRACTOR (The Heavy Art Critic - ResNet50)
+# FEATURE EXTRACTOR (ResNet50)
 # ==========================================
 class ResNetFeatureExtractor(nn.Module):
     def __init__(self):
@@ -17,7 +17,7 @@ class ResNetFeatureExtractor(nn.Module):
 
         # Extract the layers: we want to reach a deep layer to capture
         # complex patterns, but stop before the final classification head.
-        # resnet.layer3 is a sweet spot for intermediate/deep features
+        # resnet.layer3 should be a sweet spot for intermediate/deep features
         self.feature_extractor = nn.Sequential(
             resnet.conv1,
             resnet.bn1,
@@ -25,10 +25,10 @@ class ResNetFeatureExtractor(nn.Module):
             resnet.maxpool,
             resnet.layer1,
             resnet.layer2,
-            resnet.layer3  # You could try adding layer4 to push it even deeper
+            resnet.layer3 
         )
 
-        # Freeze the weights! We only use it to evaluate the Generator, not to train it.
+        # Freeze the weights
         for param in self.feature_extractor.parameters():
             param.requires_grad = False
 
@@ -42,9 +42,9 @@ class ResNetFeatureExtractor(nn.Module):
         return self.feature_extractor(x)
 
 
-# ==========================================
-# 1. THE GENERATOR (The Forger)
-# ==========================================
+# =========================
+# 1. THE GENERATOR
+# =========================
 class ResidualBlock(nn.Module):
     def __init__(self, channels):
         super().__init__()
@@ -55,22 +55,21 @@ class ResidualBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(channels)
 
     def forward(self, x):
-        # Skip Connection: adds the input to the output!
+        # Skip Connection
         residual = self.conv1(x)
         residual = self.bn1(residual)
         residual = self.prelu(residual)
         residual = self.conv2(residual)
         residual = self.bn2(residual)
-        return x + residual  # <- THE SECRET OF DEEP NETWORKS
-
+        return x + residual  
 
 class Generator(nn.Module):
-    def __init__(self, scale_factor=4, num_res_blocks=8):  # 8 blocks = very deep network!
+    def __init__(self, scale_factor=4, num_res_blocks=8):
         super().__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=9, padding=4)
         self.prelu = nn.PReLU()
 
-        # Create a chain of 8 Residual Blocks
+        # Creates a chain of 8 Residual Blocks
         self.res_blocks = nn.Sequential(*[ResidualBlock(64) for _ in range(num_res_blocks)])
 
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
@@ -92,15 +91,15 @@ class Generator(nn.Module):
         out1 = self.prelu(self.conv1(x))
         out = self.res_blocks(out1)
         out = self.bn2(self.conv2(out))
-        out = out + out1  # Another giant Skip Connection
+        out = out + out1  # Another Skip Connection
         out = self.upsample(out)
         out = self.conv3(out)
         return (torch.tanh(out) + 1) / 2  # Normalize the output between 0 and 1
 
 
-# ==========================================
-# 2. THE DISCRIMINATOR (The Cop)
-# ==========================================
+# =================================
+# 2. THE DISCRIMINATOR
+# =================================
 class Discriminator(nn.Module):
     def __init__(self):
         super().__init__()
@@ -130,14 +129,13 @@ class Discriminator(nn.Module):
         return self.net(x).view(batch_size, -1)
 
 
-# ==========================================
-# 3. THE LIGHTNING MODEL (The GAN Arena)
-# ==========================================
+# =========================
+# 3. THE GAN MODEL
+# =========================
 class SRGANModel(pl.LightningModule):
     def __init__(self, lr=1e-4):
         super().__init__()
         self.save_hyperparameters()
-        # IMPORTANT: Manual optimization is required for GANs
         self.automatic_optimization = False
 
         self.generator = Generator()
@@ -185,15 +183,15 @@ class SRGANModel(pl.LightningModule):
         # ---------------------
         self.toggle_optimizer(opt_g)
 
-        # 1. Pixel Loss (The anchor for colors: kept strong at 1.0)
+        # 1. Pixel Loss
         pixel_loss = self.mse_loss(fake_imgs, hr_imgs)
 
-        # 2. ResNet Feature Loss (The Art Critic: slightly scaled down)
+        # 2. ResNet Feature Loss
         real_features = self.feature_extractor(hr_imgs).detach()
         fake_features = self.feature_extractor(fake_imgs)
         feature_loss = self.mse_loss(fake_features, real_features) * 0.006
 
-        # 3. Adversarial Loss (The Cop: the magic touch for details)
+        # 3. Adversarial Loss
         adversarial_loss = self.bce_loss(self.discriminator(fake_imgs), valid)
 
         # Classic sum: Stable Colors + Scaled ResNet Textures + Standard Cop
