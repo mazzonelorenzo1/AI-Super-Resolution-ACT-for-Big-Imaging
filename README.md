@@ -10,6 +10,8 @@
 - [Quantitative Results](#results)
 - [Aknowledgments](#aknow)
 
+---
+
 <a id="intro"></a>
 ## 📖 About the Project
 This project tackles the Image Super-Resolution and Restoration problem in real-world scenarios. The goal is to reconstruct a High-Resolution image starting from a heavily degraded Low-Resolution image, affected by sensor noise, blur, and JPEG compression artifacts.
@@ -23,6 +25,8 @@ While classic Generative Adversarial Networks (GANs) struggle with simultaneous 
 The project also features a custom solution for the Domain Gap problem using Teacher Forcing and pixel-perfect geometric alignment.
 
 For in-depth analysis of this project please refer to the [presentation](https://github.com/mazzonelorenzo1/AI-Super-Resolution-ACT-for-Big-Imaging/blob/main/Canva_Presentation).
+
+---
 
 <a id="struct"></a>
 ## 📂 Repository Structure
@@ -60,6 +64,8 @@ The codebase is organized modularly, separating data loading, model architecture
     └── app_def.py                  # Interactive Streamlit Web App
 ```
 
+---
+
 <a id="install"></a>
 ## ⚙️ Installation
 
@@ -80,6 +86,9 @@ Ensure you have PyTorch installed with CUDA support if you intend to train the m
 ```bash
 pip install requirements.txt
 ```
+
+---
+
 <a id="demo"></a>
 ## 🚀 How to Run the Demo
 1. **Data Preparation & Checking**
@@ -126,6 +135,8 @@ streamlit run app.py
 
 - A browser window will open automatically. Upload an image, select your desired AI engine from the sidebar, and watch the inference happen with dynamic VRAM-safe tiling!
 
+---
+
 <a id="results"></a>
 ## 📈 Quantitative Results
 
@@ -140,6 +151,8 @@ Below is a summary of the evaluation metrics across the different architectures 
 | Decoupled VGG Model - Stage 1 | **0.0019** | **27.54** | **0.83** |
 | Decoupled VGG Model - Stage 2 | 0.0059 | 22.71 | 0.59 |
 | VGG Model + Attention (Official Dataset) | 0.0040 | 25.01 | 0.70 |
+
+---
 
 <a id="aknow"></a>
 ##🏆 Acknowledgments
