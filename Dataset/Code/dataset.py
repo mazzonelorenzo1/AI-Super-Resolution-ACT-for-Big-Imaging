@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import albumentations as A
 
-# THE MAGIC: We use the official PyTorch tool to download and extract the data
+# Official PyTorch tool to download and extract the data
 from torchvision.datasets.utils import download_and_extract_archive
 
 DIV2K_URL = "http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip"
@@ -22,15 +22,15 @@ class DIV2KDataset(Dataset):
         self.patch_size = patch_size
         self.scale_factor = scale_factor
 
-        # 1. GEOMETRIC TRANSFORMATIONS (Crop and rotation only, HR Target remains perfect!)
+        # 1. GEOMETRIC TRANSFORMATIONS (Crop and rotation only, HR Target remains perfect)
         self.geom_transform = A.Compose([
             A.RandomCrop(height=patch_size, width=patch_size),
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.5),
         ])
 
-        # 2. DEGRADATIONS (Applied ONLY to the small LR image)
-        # THE REAL-ESRGAN MAGIC: Multi-Stage Synthetic Degradation
+        # 2. DEGRADATIONS (Applied only to the small LR image)
+        # Multi-Stage Synthetic Degradation
         self.degrade_transform = A.Compose([
             A.GaussianBlur(blur_limit=(3, 7), p=0.5),  # Simulate out-of-focus camera
             A.GaussNoise(std_range=(0.02, 0.08), p=0.5),  # Simulate sensor noise
@@ -42,26 +42,24 @@ class DIV2KDataset(Dataset):
         return len(self.image_filenames)
 
     def __getitem__(self, idx):
-        # 1. Load the original High-Resolution (HR) image
+        # 1. Load the original High-Resolution image
         img_path = os.path.join(self.hr_dir, self.image_filenames[idx])
         hr_image = cv2.imread(img_path)
 
-        # OpenCV loads images in BGR format by default. We must convert it to RGB.
+        # OpenCV loads images in BGR format by default, we convert it to RGB
         hr_image = cv2.cvtColor(hr_image, cv2.COLOR_BGR2RGB)
 
         # 2. Apply random geometric transformations (Extracts a random 256x256 patch)
         hr_patch = self.geom_transform(image=hr_image)['image']
 
-        # 3. Create the Low-Resolution (LR) equivalent
-        # Note: We use INTER_AREA for downsizing to avoid adding aliasing artifacts
+        # 3. Create the Low-Resolution equivalent
         lr_size = (self.patch_size // self.scale_factor, self.patch_size // self.scale_factor)
         lr_base = cv2.resize(hr_patch, lr_size, interpolation=cv2.INTER_AREA)
 
-        # 4. Apply the synthetic degradation pipeline to the LR image ONLY
+        # 4. Apply the synthetic degradation pipeline to the LR image only
         lr_degraded = self.degrade_transform(image=lr_base)['image']
 
         # 5. Convert Numpy arrays to PyTorch Tensors and normalize pixels between 0 and 1
-        # PyTorch expects the shape (Channels, Height, Width), so we permute dimensions
         input_tensor = torch.from_numpy(lr_degraded).permute(2, 0, 1).float() / 255.0
         target_tensor = torch.from_numpy(hr_patch).permute(2, 0, 1).float() / 255.0
 
@@ -77,7 +75,7 @@ if __name__ == "__main__":
     # Final extracted folder path
     hr_dir = os.path.join(DATA_ROOT, "DIV2K_train_HR")
 
-    # If we haven't downloaded it yet, download and extract with a progress bar
+    # If it's not downloaded yet, download and extract with a progress bar
     if not os.path.exists(hr_dir):
         print(f"📥 Downloading DIV2K dataset from {DIV2K_URL}...")
         print("☕ This might take a few minutes (file is ~700MB)...")
