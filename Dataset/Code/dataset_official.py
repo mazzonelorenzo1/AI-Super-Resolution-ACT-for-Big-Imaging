@@ -14,12 +14,11 @@ LR_URL = "http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_LR_bicubic_X4.zip"
 class DIV2KOfficialDataset(Dataset):
     def __init__(self, data_dir="./data_official", patch_size=256, scale_factor=4):
         self.hr_dir = os.path.join(data_dir, "DIV2K_train_HR")
-        # Pay attention to the internal path of the official zip structure:
         self.lr_dir = os.path.join(data_dir, "DIV2K_train_LR_bicubic", "X4")
         self.patch_size = patch_size
         self.scale_factor = scale_factor
 
-        # 1. Automatic download of BOTH packages if missing
+        # 1. Automatic download of both packages if missing
         if not os.path.exists(self.hr_dir):
             print(f"📥 Downloading HR dataset...")
             download_and_extract_archive(HR_URL, download_root=data_dir)
@@ -35,7 +34,7 @@ class DIV2KOfficialDataset(Dataset):
         return len(self.hr_filenames)
 
     def __getitem__(self, idx):
-        # 2. Official Naming Convention Handling (e.g., 0001.png -> 0001x4.png)
+        # 2. Official Naming Convention Handling
         hr_name = self.hr_filenames[idx]
         name, ext = os.path.splitext(hr_name)
         lr_name = f"{name}x4{ext}"
@@ -50,10 +49,10 @@ class DIV2KOfficialDataset(Dataset):
         lr_image = cv2.imread(lr_path)
         lr_image = cv2.cvtColor(lr_image, cv2.COLOR_BGR2RGB)
 
-        # 3. SYNCHRONIZED GEOMETRIC CROP (Crucial for alignment!)
+        # 3. Synchronized geometric crop
         lr_h, lr_w, _ = lr_image.shape
-        lr_crop_size = self.patch_size // self.scale_factor  # Usually 64
-
+        lr_crop_size = self.patch_size // self.scale_factor 
+        
         # Random anchor point on the small grid
         x_lr = random.randint(0, max(0, lr_w - lr_crop_size))
         y_lr = random.randint(0, max(0, lr_h - lr_crop_size))
@@ -66,7 +65,7 @@ class DIV2KOfficialDataset(Dataset):
         y_hr = y_lr * self.scale_factor
         target_img = hr_image[y_hr:y_hr + self.patch_size, x_hr:x_hr + self.patch_size]
 
-        # 4. MANUAL DATA AUGMENTATION (Keeps crops perfectly aligned)
+        # 4. Manual Data Agumentation
         if random.random() > 0.5:
             input_img = np.fliplr(input_img).copy()
             target_img = np.fliplr(target_img).copy()
@@ -81,7 +80,7 @@ class DIV2KOfficialDataset(Dataset):
         return input_tensor, target_tensor
 
 
-# QUICK TEST
+# Quick test
 if __name__ == "__main__":
     print("Testing official dataset loading...")
     dataset = DIV2KOfficialDataset()
