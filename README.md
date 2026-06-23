@@ -133,14 +133,16 @@ Before running the app, please rearrange your local working directory to match t
 │
 ├── 📁 checkpoints/                 # Contains all your trained .ckpt files
 │   ├── stage1/                     
-│   └── stage2/                     
+│   └── stage2/
+│   ├── #All the other models                
 │
 ├── app.py                          # Moved from User Interface/
 ├── model.py                        # Moved from Models/
 ├── gan_model.py                    # Moved from Models/
 ├── gan_model_resnet.py             # Moved from Models/
 ├── gan_model_attention.py          # Moved from Models/
-└── gan_model_double.py             # Moved from Models/
+├── gan_model_double.py             # Moved from Models/
+└── #And so on with ALL the rest of the scripts
 ```
 
 To then test the models, compare different historical architectures, and upscale your own images or videos, launch the interactive Streamlit Application:
