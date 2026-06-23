@@ -6,36 +6,34 @@ from torchmetrics.image import PeakSignalNoiseRatio, StructuralSimilarityIndexMe
 from torchvision.models import vgg19, VGG19_Weights
 
 
-# ==========================================
-# FEATURE EXTRACTOR (The Art Critic - VGG19)
-# ==========================================
+# ==============================
+# FEATURE EXTRACTOR (VGG19)
+# ==============================
 class VGGFeatureExtractor(nn.Module):
     def __init__(self):
         super().__init__()
         # Download the pre-trained VGG19 network
         vgg = vgg19(weights=VGG19_Weights.IMAGENET1K_V1)
 
-        # We extract only the first 36 layers (up to ReLU 5.4, as specified in the SRGAN paper)
+        # Extract only the first 36 layers
         self.feature_extractor = nn.Sequential(*list(vgg.features.children())[:36])
 
-        # IMPORTANT: Freeze the weights! We don't want to train the VGG;
-        # we only need it to evaluate the perceptual quality. This saves a lot of VRAM.
+        # Freeze the weights to save VRAM
         for param in self.feature_extractor.parameters():
             param.requires_grad = False
 
         self.feature_extractor.eval()
 
     def forward(self, x):
-        # VGG expects images to be normalized according to the ImageNet standard
         mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).to(x.device)
         std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).to(x.device)
         x = (x - mean) / std
         return self.feature_extractor(x)
 
 
-# ==========================================
-# 1. THE GENERATOR (The Forger)
-# ==========================================
+# ==============================
+# 1. THE GENERATOR
+# ==============================
 class ResidualBlock(nn.Module):
     def __init__(self, channels):
         super().__init__()
@@ -52,11 +50,10 @@ class ResidualBlock(nn.Module):
         residual = self.prelu(residual)
         residual = self.conv2(residual)
         residual = self.bn2(residual)
-        return x + residual  # <- THE SECRET OF DEEP NETWORKS
-
+        return x + residual 
 
 class Generator(nn.Module):
-    def __init__(self, scale_factor=4, num_res_blocks=8):  # 8 blocks = deep network
+    def __init__(self, scale_factor=4, num_res_blocks=8): 
         super().__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=9, padding=4)
         self.prelu = nn.PReLU()
@@ -89,9 +86,9 @@ class Generator(nn.Module):
         return (torch.tanh(out) + 1) / 2  # Normalize output between 0 and 1
 
 
-# ==========================================
-# 2. THE DISCRIMINATOR (The Cop)
-# ==========================================
+# ===============================
+# 2. THE DISCRIMINATOR
+# ===============================
 class Discriminator(nn.Module):
     def __init__(self):
         super().__init__()
@@ -121,15 +118,14 @@ class Discriminator(nn.Module):
         return self.net(x).view(batch_size, -1)
 
 
-# ==========================================
-# 3. THE LIGHTNING MODEL (The GAN Arena)
-# ==========================================
+# ==============================
+# 3. THE LIGHTNING MODEL
+# ==============================
 class SRGANModel(pl.LightningModule):
     def __init__(self, lr=1e-4):
         super().__init__()
         self.save_hyperparameters()
 
-        # IMPORTANT: With GANs we must manage optimization manually
         self.automatic_optimization = False
 
         self.generator = Generator()
@@ -177,15 +173,15 @@ class SRGANModel(pl.LightningModule):
         # ---------------------
         self.toggle_optimizer(opt_g)
 
-        # 1. Pixel Loss (Anchors colors and structural layout)
+        # 1. Pixel Loss
         pixel_loss = self.mse_loss(fake_imgs, hr_imgs)
 
-        # 2. VGG Feature Loss (The Art Critic: multiplied by 0.006 to scale it to pixel levels)
+        # 2. VGG Feature Loss
         real_features = self.vgg(hr_imgs).detach()
         fake_features = self.vgg(fake_imgs)
         vgg_loss = self.mse_loss(fake_features, real_features) * 0.006
 
-        # 3. Adversarial Loss (Fools the cop to generate micro-details)
+        # 3. Adversarial Loss
         adversarial_loss = self.bce_loss(self.discriminator(fake_imgs), valid)
 
         # Combine all losses: Colors + Scaled Textures + Cop
