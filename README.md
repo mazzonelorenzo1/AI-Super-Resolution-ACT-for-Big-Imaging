@@ -24,7 +24,7 @@ While classic Generative Adversarial Networks (GANs) struggle with simultaneous 
 
 The project also features a custom solution for the Domain Gap problem using Teacher Forcing and pixel-perfect geometric alignment.
 
-For in-depth analysis of this project please refer to the [presentation](https://github.com/mazzonelorenzo1/AI-Super-Resolution-ACT-for-Big-Imaging/blob/main/Presentation%20Big%20Imaging%20Compressed.pdf).
+For in-depth analysis of this project please refer to the [presentation](https://github.com/mazzonelorenzo1/AI-Super-Resolution-ACT-for-Big-Imaging/blob/main/ACT_Presentation_Compressed.pdf).
 
 ---
 
