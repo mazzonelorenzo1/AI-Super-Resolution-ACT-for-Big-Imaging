@@ -120,7 +120,7 @@ Once the intermediate images are generated, you can train the GAN:
 python train_double.py --stage 2
 ```
 
-**Shortcut**
+**Shortcut**:
 Alternatively, you can already find all the trained models in [this Google Drive](https://drive.google.com/drive/folders/1jcDUcz_Un1R-vTTecjsqVsS8oow4UezQ?usp=drive_link). Download all the necessary models and put them in the correct path.
 
 3. **Running the Streamlit UI**
