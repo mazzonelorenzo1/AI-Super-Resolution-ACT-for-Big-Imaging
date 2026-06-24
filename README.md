@@ -108,7 +108,7 @@ python train_double.py --stage 1
 Wait for the training to finish. The best weights will be saved in checkpoints/stage1/.
 
 **Step B: Prepare Data for Stage 2 (Domain Alignment)**
-Before training the GAN, we must process all HR images through the flawed Stage 1 model to simulate the production environment.
+Before training the GAN, we must process all HR images through the Stage 1 model to simulate the production environment.
 Open *prep_stage2.py*, ensure *CKPT_STAGE1 points* to your newly trained Stage 1 weights, and run:
 ```bash
 python prep_stage2.py
